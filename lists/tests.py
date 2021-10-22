@@ -1,34 +1,12 @@
-import django
-from django.http import HttpRequest
-from django.test import TestCase
 from django.urls import resolve
-from django.conf import settings as django_settings
+
+from lists.django_tests import DjangoTest
+from lists.models import Item
 from lists.views import home_page
-from superlists import settings as app_settings
 
 
-class SmokeTests(TestCase):
+class SmokeTests(DjangoTest):
     # noinspection PyBroadException
-    def __init__(self, method_name="runTest"):
-        super().__init__(method_name)
-        try:
-            # FIXME: this is probably only required for pycharm tests
-            # and has to be silently ignored when running from the cli
-            django_settings.configure(
-                DEBUG=True,
-                DATABASES=app_settings.DATABASES,
-                INSTALLED_APPS=app_settings.INSTALLED_APPS,
-                MIDDLEWARE=app_settings.MIDDLEWARE,
-                ROOT_URLCONF=app_settings.ROOT_URLCONF,
-                STATIC_URL=app_settings.STATIC_URL,
-                TEMPLATES=app_settings.TEMPLATES,
-                ALLOWED_HOSTS=["testserver"],
-                SITE_ID=1
-            )
-            django.setup()
-        except:
-            pass
-
     def test_root_url_resolves_to_home_page(self):
         # arrange
         found = resolve("/")
@@ -50,3 +28,23 @@ class SmokeTests(TestCase):
         # assert
         self.assertIn("A new list item", response.content.decode())
         self.assertTemplateUsed(response, "home.html")
+
+
+class ItemModelTest(DjangoTest):
+    # TODO: pick up from here
+    def test_saving_and_retrieving_items(self):
+        # arrange
+        first_item = Item()
+        first_item.text = "The first item"
+        first_item.save()
+
+        second_item = Item()
+        second_item.text = "The second item"
+        second_item.save()
+
+        # act
+        saved_items = Item.objects.all()
+        # assert
+        self.assertEqual(saved_items.count(), 2)
+        self.assertEqual(saved_items[0].text, "The first item")
+        self.assertEqual(saved_items[1].text, "The second item")

@@ -9,6 +9,8 @@ from urllib.request import urlopen
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 
+from lists.models import Item
+
 server_url = "http://localhost:8000"
 
 

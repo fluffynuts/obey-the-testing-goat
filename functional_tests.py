@@ -1,15 +1,21 @@
 import subprocess
 import time
+from urllib.error import URLError
 
 from selenium import webdriver
 from unittest import TestCase, main as test_main
+from urllib.request import urlopen
 
 from selenium.webdriver.common.keys import Keys
+
+server_url = "http://localhost:8000"
 
 
 class TestFunctional(TestCase):
     def setUp(self):
-        self.cmd = subprocess.Popen("virtualenv/scripts/python manage.py runserver")
+        self.cmd = None
+        if self.server_is_not_running():
+            self.cmd = subprocess.Popen("virtualenv/scripts/python manage.py runserver")
         self.browser = webdriver.Firefox()
 
     # noinspection PyBroadException
@@ -18,14 +24,22 @@ class TestFunctional(TestCase):
             self.browser.quit()
         except:
             pass
-        self.cmd.kill()
+        if self.cmd is not None:
+            self.cmd.kill()
+
+    def server_is_not_running(self):
+        try:
+            urlopen(server_url)
+            return False
+        except URLError:
+            return True
 
     def test_should_be_able_to_start_a_list_and_retrieve_it_later(self):
         # arrange
         browser = self.browser
         # act
         # user visits the site's home page
-        browser.get("http://localhost:8000")
+        browser.get(server_url)
         # assert
 
         # she should see the page title
@@ -54,7 +68,8 @@ class TestFunctional(TestCase):
         self.assertIsNotNone(table)
         rows = table.find_elements_by_tag_name("tr")
         self.assertTrue(
-            any(row.text == "1: Buy peacock feathers" for row in rows)
+            any(row.text == "1: Buy peacock feathers" for row in rows),
+            "new to-do item did not appear in the rows"
         )
 
         # there is still a text box to add another item

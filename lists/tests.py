@@ -22,6 +22,7 @@ class SmokeTests(TestCase):
                 ROOT_URLCONF=app_settings.ROOT_URLCONF,
                 STATIC_URL=app_settings.STATIC_URL,
                 TEMPLATES=app_settings.TEMPLATES,
+                ALLOWED_HOSTS=["testserver"],
                 SITE_ID=1
             )
             django.setup()
@@ -37,11 +38,7 @@ class SmokeTests(TestCase):
 
     def test_home_page_returns_expected_html(self):
         # arrange
-        request = HttpRequest()
         # act
-        response = home_page(request)
-        html: str = response.content.decode("utf8")
+        response = self.client.get("/")
         # assert
-        self.assertTrue(html.startswith("<html>"))
-        self.assertIn("<title>To-Do lists</title>", html)
-        self.assertTrue(html.endswith("</html>"))
+        self.assertTemplateUsed(response, "home.html")

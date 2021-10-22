@@ -19,5 +19,5 @@ from django.contrib import admin
 from lists.views import home_page
 
 urlpatterns = [
-    url(r"^$", home_page, name="home")
+    url(r"^$", home_page, name="home"),
 ]

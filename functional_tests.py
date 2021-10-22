@@ -5,18 +5,16 @@ from unittest import TestCase, main as test_main
 
 class TestFunctional(TestCase):
     def setUp(self):
+        self.cmd = subprocess.Popen("virtualenv/scripts/python manage.py runserver")
         self.browser = webdriver.Firefox()
 
+    # noinspection PyBroadException
     def tearDown(self):
         try:
             self.browser.quit()
         except:
             pass
-
-    def server(self):
-        cmd = subprocess.Popen("virtualenv/scripts/python manage.py runserver")
-        yield cmd
-        cmd.kill()
+        self.cmd.kill()
 
     def test_should_be_able_to_start_a_list_and_retrieve_it_later(self):
         # arrange
@@ -48,6 +46,7 @@ class TestFunctional(TestCase):
         # she quits
         # technically, we could leave this out as the fixture cleans up, but it's part of the story (:
         browser.quit()
+        self.fail("finish the test!")
 
 
 if __name__ == "__main__":
